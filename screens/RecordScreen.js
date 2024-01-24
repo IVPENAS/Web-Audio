@@ -4,7 +4,7 @@ import { Audio } from 'expo-av';
 import { FontAwesome5 } from '@expo/vector-icons'
 
 
-export default function App() {
+export default function App({ navigation }) {
   const [recording, setRecording] = React.useState();
   const [recordings, setRecordings] = React.useState([]);
   const [onAudioSampleReceived, setOnAudioSampleReceived] = React.useState(null); // Declare the state
@@ -57,7 +57,6 @@ export default function App() {
     }
   }
 
-  
 //Duration of the audio
   function getDurationFormatted(milliseconds) {
     const minutes = milliseconds / 1000 / 60 ;
@@ -65,6 +64,7 @@ export default function App() {
     return seconds < 10 ? `${Math.floor(minutes)}: 0${seconds}` : `${Math.floor(minutes)}: ${seconds}`
   }
   const progress = 40;
+  
 //Saved Audio Layout
   function getRecordingLines() {
     return recordings.map (( recordingLine, index) => {
@@ -84,6 +84,15 @@ export default function App() {
       );
     });
   }
+
+  /* Navigation */
+  const goToPlaybackScreen = () => {
+    const recordingUris = recordings.map(recording => {
+      console.log('Recording URI:', recording.uri); // Debugging line
+      return recording.uri;
+    });
+    navigation.navigate('PlaybackScreen', { recordingUris });
+  };
 
   //Deletes the saved Audio once clear is pressed
   function clearRecordings() {
@@ -114,6 +123,8 @@ export default function App() {
           <View style = {[styles.redCircle, {width: recording ? '80%' : '100%'}]}/>
         </Pressable>
       </View>
+
+      <Button title="Go to Playback" onPress={goToPlaybackScreen} />
       
     </View>
  );

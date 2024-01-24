@@ -90,6 +90,7 @@ import { useNavigation } from '@react-navigation/native';
         </Text>
       </TouchableOpacity>
       </View>
+
     </View>
  );
 }
