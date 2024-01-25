@@ -3,6 +3,7 @@ import { View, TouchableOpacity, StyleSheet, Animated, Text, Button } from "reac
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useNavigation } from '@react-navigation/native';
 
+
   const HomeScreen = () => {
 
     const [icon_1] = useState(new Animated.Value(10));
@@ -90,6 +91,8 @@ import { useNavigation } from '@react-navigation/native';
         </Text>
       </TouchableOpacity>
       </View>
+
+
 
     </View>
  );

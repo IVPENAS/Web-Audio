@@ -102,7 +102,7 @@ export default function App({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style = {styles.title}>AuthentiCheck</Text>
+      <Text style = {styles.title}>AuthentiCheck</Text>   
 
       {/* List of Recorded Items */}
       {/* <Button title={recording ? 'Stop Recording' : 'Start Recording'} onPress={recording ? stopRecording : startRecording} /> */}
@@ -122,121 +122,145 @@ export default function App({ navigation }) {
         <Pressable style = {styles.recordButton} onPress={recording ? stopRecording : startRecording}>
           <View style = {[styles.redCircle, {width: recording ? '80%' : '100%'}]}/>
         </Pressable>
+
+        {/* View All Recording */}
+      <TouchableOpacity style = {styles.viewAll} onPress={goToPlaybackScreen} >
+        <View style={styles.iconContainer}>
+        <FontAwesome5 name="bookmark" size={25} color="#0B3954"/>
+        <Text style = {styles.IconText}>
+          View All
+        </Text>
+        </View>
+      </TouchableOpacity>
       </View>
 
-      <Button title="Go to Playback" onPress={goToPlaybackScreen} />
       
     </View>
  );
 }
 
 const styles = StyleSheet.create({
-  container: {
-  flex: 1,
-  bottom: '0%',
-  },
-  /* AuthentiCheck */
-  title: {
-  paddingLeft: 30,
-  fontSize: 20,
-  fontWeight: 'bold',
-  color: '#0B3954',
-  },
-  /* List */
-  row: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-  margin: 5,
-  padding: 15,
-  marginLeft: 10,
-  marginRight: 10,
-  bottom: '0.2',
-  backgroundColor: 'white',
-  margin: 5,
-  alignItems: 'center',
-  borderRadius: 5,
-  shadowColor: "#000",
-  shadowOffset: {
-    width: 0,
-    height: 2,
-  },
-  shadowOpacity: 0.25,
-  shadowRadius: 3.84,
-  elevation: 5,
-  gap: 10
-  },
-  /*  Audio Name */
-  fill: {
-  flex: 1,
-  },
-  /* Audio/Wave Layout */
-  playbackContainer : {
-  flex: 1,
-  height: 30,
-  justifyContent: 'center'
-  },
-  playbackBackground : {
-  height: 3,
-  width: 310,
-  left: 40,
-  backgroundColor: 'gainsboro',
-  borderRadius: 5,
-  },
-  playbackIndicator : {
-  width: 15,
-  aspectRatio: 1,
-  borderRadius: 10,
-  bottom: -5,
-  backgroundColor: 'royalblue',
-  position: 'absolute'
-  },
-  /* Play Button */
-  playButton : {
-  right: 335,
-  },
-  /* Record Button */
-  footer :{
-  backgroundColor: 'white',
-  height: 150,
-  alignItems: 'center',
-  justifyContent: 'center'
-  },
-  recordButton : {
-  width: 60,
-  height: 60,
-  borderRadius: 60,
-  borderWidth: 3,
-  borderColor: 'gray',
-  padding: 3,
-  alignItems: 'center',
-  justifyContent: 'center'
-  },
-  redCircle : {
-  backgroundColor: 'orangered',
-  aspectRatio: 1,
-  borderRadius: 30,
-  },
-  /* Clear Button */
-  clear: {
-  color: 'white',
-  backgroundColor: '#FF9700',
-  fontWeight: 'bold',
-  paddingVertical: 10,
-  paddingHorizontal: 30,
-  borderRadius: 30,
-  marginTop: 10,
-  alignItems: 'center'
-  },
-  uploadButton: {
-    backgroundColor: 'blue',
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-  },
-  
-  uploadText: {
-    color: 'white',
-    textAlign: 'center',
-  },
+container: {
+flex: 1,
+bottom: '0%',
+},
+/* AuthentiCheck */
+title: {
+top: 25,
+paddingLeft: 30,
+fontSize: 20,
+fontWeight: 'bold',
+color: '#0B3954',
+},
+/* List */
+row: {
+flexDirection: 'row',
+alignItems: 'center',
+justifyContent: 'center',
+margin: 5,
+padding: 15,
+marginLeft: 10,
+marginRight: 10,
+bottom: '0.2',
+backgroundColor: 'white',
+margin: 5,
+alignItems: 'center',
+borderRadius: 5,
+shadowColor: "#000",
+shadowOffset: {
+width: 0,
+height: 2,
+},
+shadowOpacity: 0.25,
+shadowRadius: 3.84,
+elevation: 5,
+gap: 10
+},
+/*  Audio Name */
+fill: {
+flex: 1,
+},
+/* Audio/Wave Layout */
+playbackContainer : {
+flex: 1,
+height: 30,
+justifyContent: 'center'
+},
+playbackBackground : {
+height: 3,
+width: 310,
+left: 40,
+backgroundColor: 'gainsboro',
+borderRadius: 5,
+},
+playbackIndicator : {
+width: 15,
+aspectRatio: 1,
+borderRadius: 10,
+bottom: -5,
+backgroundColor: 'royalblue',
+position: 'absolute'
+},
+/* Play Button */
+playButton : {
+right: 335,
+},
+/* Record Button */
+footer :{
+backgroundColor: 'white',
+height: 150,
+alignItems: 'center',
+justifyContent: 'center'
+},
+recordButton : {
+width: 60,
+height: 60,
+borderRadius: 60,
+borderWidth: 3,
+borderColor: 'gray',
+padding: 3,
+alignItems: 'center',
+justifyContent: 'center'
+},
+redCircle : {
+backgroundColor: 'orangered',
+aspectRatio: 1,
+borderRadius: 30,
+},
+/* Clear Button */
+clear: {
+color: 'white',
+backgroundColor: '#FF9700',
+fontWeight: 'bold',
+paddingVertical: 10,
+paddingHorizontal: 30,
+borderRadius: 30,
+marginTop: 10,
+alignItems: 'center'
+},
+uploadButton: {
+backgroundColor: 'blue',
+padding: 10,
+borderRadius: 5,
+marginTop: 10,
+},
+uploadText: {
+color: 'white',
+textAlign: 'center',
+},
+viewAll: {
+left: -120,
+bottom: 55
+
+},
+IconText:{
+paddingTop: 5,
+fontWeight: 'bold',
+fontSize: 13,
+color: '#0B3954'
+},
+iconContainer: {
+alignItems: 'center',
+justifyContent: 'center',
+},
 });
