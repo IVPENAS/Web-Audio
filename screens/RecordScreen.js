@@ -8,7 +8,7 @@ export default function App({ navigation }) {
   const [recording, setRecording] = React.useState();
   const [recordings, setRecordings] = React.useState([]);
   const [onAudioSampleReceived, setOnAudioSampleReceived] = React.useState(null); // Declare the state
-
+  
   async function startRecording() {
     try {
       //Permission Audio Recording
@@ -86,19 +86,18 @@ export default function App({ navigation }) {
   }
 
   /* Navigation */
-  const goToPlaybackScreen = () => {
+  /* const goToPlaybackScreen = () => {
     const recordingUris = recordings.map(recording => {
       console.log('Recording URI:', recording.uri); // Debugging line
       return recording.uri;
     });
     navigation.navigate('PlaybackScreen', { recordingUris });
   };
+ */
 
-  //Deletes the saved Audio once clear is pressed
-  function clearRecordings() {
-    setRecordings([])
-  }
-
+  const goToPlaybackScreen = () => {
+    navigation.navigate('PlaybackScreen', { recordings });
+  };
 
   return (
     <View style={styles.container}>
@@ -107,16 +106,9 @@ export default function App({ navigation }) {
       {/* List of Recorded Items */}
       {/* <Button title={recording ? 'Stop Recording' : 'Start Recording'} onPress={recording ? stopRecording : startRecording} /> */}
       <View style={styles.playbackContainer}>
-      {getRecordingLines()}
+      {/* {getRecordingLines()} */}
       </View>
-
-
-
-      {/* Clear Button */}
-     <Text style = {styles.clear} onPress={clearRecordings}>Clear Recordings</Text>
-      {/* <Button title={recordings.length > 0 ? 'Clear Recordings' : '' } onPress={clearRecordings} /> */}
-
-      
+     
       {/* Play Button */}
       <View style = {styles.footer}>
         <Pressable style = {styles.recordButton} onPress={recording ? stopRecording : startRecording}>
