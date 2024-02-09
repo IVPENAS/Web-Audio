@@ -2,6 +2,7 @@ import React, { useState} from "react";
 import { View, TouchableOpacity, StyleSheet, Animated, Text, Button } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useNavigation } from '@react-navigation/native';
+import { WebView } from 'react-native-webview';
 
 
   const HomeScreen = () => {
@@ -59,6 +60,12 @@ import { useNavigation } from '@react-navigation/native';
   return (
     <View style={styles.container}>
 
+      {/* Webview */}
+      {/* <WebView
+          style={styles.webView}
+          source={require('../assets/index.html')}
+        /> */}
+<View style={styles.contentContainer}>
       {/* Dimming Animation */}
        <Animated.View style={[styles.backgroundOverlay, { opacity: overlayOpacity }]} />
 
@@ -93,7 +100,7 @@ import { useNavigation } from '@react-navigation/native';
       </View>
 
 
-
+      </View>
     </View>
  );
 }
@@ -102,6 +109,13 @@ export default HomeScreen;
 const styles = StyleSheet.create({
 container: {
 flex: 1,
+flexDirection: 'column'
+},
+webView: {
+  flex: 1,
+},
+contentContainer: {
+  flex: 1,
 },
 /* Navigation Bar */
 navbar: {
@@ -123,7 +137,7 @@ backgroundColor:'white',
 paddingVertical: 10,
 paddingHorizontal: 5,
 padding: 10,
-width: 100,
+width: 95,
 position: 'absolute',
 bottom: 40,
 right: 100,

@@ -96,7 +96,7 @@ export default function App({ navigation }) {
  */
 
   const goToPlaybackScreen = () => {
-    navigation.navigate('PlaybackScreen', { recordings });
+    navigation.navigate('PlaybackScreen', { recordings: recordings });
   };
 
   return (
