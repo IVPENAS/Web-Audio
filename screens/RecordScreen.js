@@ -1,14 +1,14 @@
-import React from 'react';
+import React, { useEffect, useRef} from 'react';
 import { StyleSheet, Text, View, Button, TouchableOpacity, Pressable, Animated, Easing, FlatList, ScrollView } from 'react-native';
 import { Audio } from 'expo-av';
 import { FontAwesome5 } from '@expo/vector-icons'
-
 
 export default function App({ navigation }) {
   const [recording, setRecording] = React.useState();
   const [recordings, setRecordings] = React.useState([]);
   const [onAudioSampleReceived, setOnAudioSampleReceived] = React.useState(null); // Declare the state
-  
+  const animatedValue = useRef(new Animated.Value(0)).current; 
+
   async function startRecording() {
     try {
       //Permission Audio Recording
@@ -22,7 +22,12 @@ export default function App({ navigation }) {
         setRecording(recording);
       }
     } catch (err) {}
-  }
+    Animated.timing(animatedValue, {
+      toValue: 1, // Animate to square
+      duration: 250, // Duration of the animation
+      useNativeDriver: false // This needs to be false to animate non-transform properties like borderRadius
+    }).start();
+  };
 
   //After recording it resets and saves the audio list
   async function stopRecording() {
@@ -55,7 +60,21 @@ export default function App({ navigation }) {
     if (onAudioSampleReceived) {
       onAudioSampleReceived(loadedAudioJson);
     }
-  }
+    Animated.timing(animatedValue, {
+      toValue: 0, // Animate back to circle
+      duration: 150, // Duration of the animation
+      useNativeDriver: false // This needs to be false to animate non-transform properties like borderRadius
+    }).start();
+  };
+
+  // Play Stop Animation
+  const borderRadius = animatedValue.interpolate({
+    inputRange: [0, 1.5],
+    outputRange: [30, 0] // 30 is the initial borderRadius for a circle, 0 for a square
+  });
+  const animatedStyle = {
+    borderRadius, 
+  };
 
 //Duration of the audio
   function getDurationFormatted(milliseconds) {
@@ -86,33 +105,58 @@ export default function App({ navigation }) {
   }
 
   /* Navigation */
-  /* const goToPlaybackScreen = () => {
-    const recordingUris = recordings.map(recording => {
-      console.log('Recording URI:', recording.uri); // Debugging line
-      return recording.uri;
-    });
-    navigation.navigate('PlaybackScreen', { recordingUris });
-  };
- */
-
   const goToPlaybackScreen = () => {
     navigation.navigate('PlaybackScreen', { recordings: recordings });
   };
+
+  /* Ripple */
+  const rippleCount = 3; // Number of ripples
+  const rippleAnim = Array.from({ length: rippleCount }, () => new Animated.Value(0));
+
+  // Start the ripple effect when recording starts
+  useEffect(() => {
+    if (recording) {
+      rippleAnim.forEach((anim, index) => {
+        Animated.loop(
+          Animated.timing(anim, {
+            opacity: 500,
+            toValue: 1,
+            duration: 2000,
+            delay: index * 1000, // Delay subsequent ripples
+            useNativeDriver: true,
+          })
+        ).start();
+      });
+    } else {
+      rippleAnim.forEach(anim => anim.setValue(0)); // Reset animation
+    }
+  }, [recording]);
+
+  const animatedStyles = rippleAnim.map(anim => {
+    const scale = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 3] });
+    const opacity = recording // Only change the opacity if recording has started
+      ? anim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.5, 0.3, 0] })
+      : 0;
+    return { transform: [{ scale }], opacity };
+  });
 
   return (
     <View style={styles.container}>
       <Text style = {styles.title}>AuthentiCheck</Text>   
 
-      {/* List of Recorded Items */}
-      {/* <Button title={recording ? 'Stop Recording' : 'Start Recording'} onPress={recording ? stopRecording : startRecording} /> */}
+
+      {/* Ripples */}
       <View style={styles.playbackContainer}>
+        {animatedStyles.map((style, index) => (
+          <Animated.View key={`ripple_${index}`} style={[styles.ripple, style]} />
+        ))}
       {/* {getRecordingLines()} */}
       </View>
      
       {/* Play Button */}
       <View style = {styles.footer}>
-        <Pressable style = {styles.recordButton} onPress={recording ? stopRecording : startRecording}>
-          <View style = {[styles.redCircle, {width: recording ? '80%' : '100%'}]}/>
+        <Pressable style={styles.recordButton} onPress={recording ? stopRecording : startRecording}>
+          <Animated.View style={[styles.redCircle, animatedStyle, {width: recording ? '80%' : '100%'}]} />
         </Pressable>
 
         {/* View All Recording */}
@@ -176,6 +220,7 @@ flex: 1,
 playbackContainer : {
 flex: 1,
 height: 30,
+alignItems: 'center',
 justifyContent: 'center'
 },
 playbackBackground : {
@@ -193,10 +238,6 @@ bottom: -5,
 backgroundColor: 'royalblue',
 position: 'absolute'
 },
-/* Play Button */
-playButton : {
-right: 335,
-},
 /* Record Button */
 footer :{
 backgroundColor: 'white',
@@ -210,7 +251,7 @@ height: 60,
 borderRadius: 60,
 borderWidth: 3,
 borderColor: 'gray',
-padding: 3,
+padding: 6,
 alignItems: 'center',
 justifyContent: 'center'
 },
@@ -218,6 +259,10 @@ redCircle : {
 backgroundColor: 'orangered',
 aspectRatio: 1,
 borderRadius: 30,
+},
+square: {
+borderRadius: 0,
+width: '80%', 
 },
 /* Clear Button */
 clear: {
@@ -243,7 +288,6 @@ textAlign: 'center',
 viewAll: {
 left: -120,
 bottom: 55
-
 },
 IconText:{
 paddingTop: 5,
@@ -254,5 +298,14 @@ color: '#0B3954'
 iconContainer: {
 alignItems: 'center',
 justifyContent: 'center',
+},
+ripple: {
+// Style for each ripple
+width: 100,
+height: 100,
+borderRadius: 50,
+backgroundColor: 'red',
+position: 'absolute',
+opacity: 0, // Start with a transparent ripple
 },
 });

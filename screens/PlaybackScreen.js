@@ -51,7 +51,14 @@ function PlaybackScreen({ route }) {
     </View>
   );
 }
-
+/* <FlatList
+      data={recordings}
+      keyExtractor={(item, index) => index.toString()}
+      renderItem={({ item, index }) => (
+        // ... your renderItem content
+      )}
+    />
+  )} */
 
 export default PlaybackScreen;
 
