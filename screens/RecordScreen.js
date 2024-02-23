@@ -122,7 +122,7 @@ export default function App({ navigation }) {
             opacity: 500,
             toValue: 1,
             duration: 2000,
-            delay: index * 1000, // Delay subsequent ripples
+            delay: index * 1000, // Delay ripples
             useNativeDriver: true,
           })
         ).start();

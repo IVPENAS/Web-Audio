@@ -61,10 +61,10 @@ import { WebView } from 'react-native-webview';
     <View style={styles.container}>
 
       {/* Webview */}
-      {/* <WebView
+      <WebView
           style={styles.webView}
           source={require('../assets/index.html')}
-        /> */}
+        />
 <View style={styles.contentContainer}>
       {/* Dimming Animation */}
        <Animated.View style={[styles.backgroundOverlay, { opacity: overlayOpacity }]} />
