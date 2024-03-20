@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, Pressable, TouchableOpacity, FlatList} from 're
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 
-function PlaybackScreen({ route }) {
+function AudioFilesScreen({ route }) {
   const [recordings, setRecordings] = useState(route.params.recordings);
 
   /* Plays the sound */
@@ -60,7 +60,7 @@ function PlaybackScreen({ route }) {
     />
   )} */
 
-export default PlaybackScreen;
+export default AudioFilesScreen;
 
 const styles = StyleSheet.create({
 playbackContainer : {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waveform Sample</title>
+    <title>Waveform Sample</title>   
 
     <!-- Fontawesome Import -->
     <link rel="stylesheet" 
@@ -12,12 +12,12 @@
         crossorigin="anonymous" 
         referrerpolicy="no-referrer" 
     />
-
-<!-- CSS Styling -->
-<style>
-/* Navigation Layout */
+    <link rel="stylesheet" href="style.css"/>
+    <!-- CSS -->
+    <style>
+        /* Navigation Layout */
 .audio-container{
-    width: 300px;
+    width: 600px;
     box-shadow:  0 4px 8px -4px rgba(0,0,0, 0.3);
     font-family: "Roboto", sans-serif;
     position: relative;
@@ -78,17 +78,19 @@
 .audio-container .buttons .mute-btn.muted .fa-volume-up{
     display: none;
 }
-</style>
+    </style>
 </head>
-
 <body>
+    <script src="https://unpkg.com/wavesurfer.js"></script>
+    <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js"></script>
+    <div class="audio-container">
 
-<div class="audio-container">
-    <div class="track-name"> The name of the Track</div>
+    <!-- Wave Output -->
     <div class="audio"></div>
-
+    <div id="wave-timeline"></div>
+    
     <div class="buttons">
-        
+
         <!-- Play & Pause -->
         <span class="play-btn btn">
             <i class="fa-solid fa-play"></i>
@@ -115,8 +117,7 @@
         <span class="forward-btn btn">
             <i class="fa-solid fa-forward-step"></i>
         </span>
-
-        <!-- Volume Slider -->
+        
         <input 
         type="range" 
         min="0" 
@@ -125,91 +126,187 @@
         value="0.5" 
         class="volume-slider"/>
 
+    <!-- Record -->
+    <div class="container">
+        <div class="display">
+        </div>
+        <div class="controllers">
+        </div>
+    </div>
+    <!-- Recorded Audios List -->
+    <div class="recorded-audios">
+        <h3>Recorded Audios:</h3>
+        <ul id="recordingsList"></ul>
+    </div>
+
     </div>
 </div>
 
-    <script src="https://unpkg.com/wavesurfer.js"></script>
 
-    <!-- Javascript -->
-    <script>
-    /* Wavesurfer Layout */
-    const audioTrack = WaveSurfer.create({
-    container: '.audio',
-    waveColor: '#eee',
-    progressColor: 'red',
-    url: '/audio.mp3',
-    barWidth: 0,
-    minPxPerSec: 100,
-    
-    });
+  <ul id="recordingsList"></ul>
+    <script src="https://unpkg.com/wavesurfer.js@7"></script>
+    <script src="https://unpkg.com/wavesurfer.js@7.7.3/dist/plugins/timeline.min.js"></script>
+    <script type="module">
+        
+/* Wavesurfer Layout */
+const audioTrack = WaveSurfer.create({
+  container: '.audio',
+  waveColor: '#eee',
+  progressColor: 'red',
+  barWidth: 0,
+  minPxPerSec: 100,
+  plugins: [
+    WaveSurfer.Timeline.create({
+        container: "#wave-timeline",
+    })
+  ]
+});
 
-    /* Display Waveform of Audio */
-    audioTrack.load('audio.mp3');
+/* Display Waveform of Audio */
+/*   audioTrack.load('audio.mp3'); */
 
-    /* Audio Settings */
-    const playBtn = document.querySelector(".play-btn");
-    const stopBtn = document.querySelector(".stop-btn");
-    const muteBtn = document.querySelector(".mute-btn");
-    const volumeSlider = document.querySelector(".volume-slider");
-    const forwardBtn = document.querySelector('.forward-btn')
-    const backBtn = document.querySelector('.back-btn')
+/* Audio Settings */
+const playBtn = document.querySelector(".play-btn");
+const stopBtn = document.querySelector(".stop-btn");
+const muteBtn = document.querySelector(".mute-btn");
+const volumeSlider = document.querySelector(".volume-slider");
+const forwardBtn = document.querySelector('.forward-btn')
+const backBtn = document.querySelector('.back-btn')
 
 
-    /* Playing and Pause Condition */
-    playBtn.addEventListener("click", () => {
-    audioTrack.playPause();
-    
-    if (audioTrack.isPlaying()){
-        playBtn.classList.add("playing");
-    } else {
-        playBtn.classList.remove("playing");
-    }
-    });
-
-    /* Stop Restart */
-    stopBtn.addEventListener("click", () => {
-    audioTrack.stop();
+/* Playing and Pause Condition */
+playBtn.addEventListener("click", () => {
+  audioTrack.playPause();
+  
+  if (audioTrack.isPlaying()){
+    playBtn.classList.add("playing");
+  } else {
     playBtn.classList.remove("playing");
-    });
+  }
+});
 
-    /* Volume Settings */
-    volumeSlider.addEventListener("mouseup", () => {
-    changeVolume(volumeSlider.value);
-    });
+/* Stop Restart */
+stopBtn.addEventListener("click", () => {
+  audioTrack.stop();
+  playBtn.classList.remove("playing");
+});
 
-    /* Setting Audio Intensity */
-    const changeVolume = (volume) => {
-    if (volume == 0){
-        muteBtn.classList.add("muted");
-    } else {
-        muteBtn.classList.remove("muted");
-    }
-    audioTrack.setVolume(volume);
+/* Volume Settings */
+volumeSlider.addEventListener("mouseup", () => {
+  changeVolume(volumeSlider.value);
+});
+
+/* Setting Audio Intensity */
+const changeVolume = (volume) => {
+  if (volume == 0){
+    muteBtn.classList.add("muted");
+  } else {
+    muteBtn.classList.remove("muted");
+  }
+  audioTrack.setVolume(volume);
+};
+
+/* Mute Condition */
+muteBtn.addEventListener("click", () => {
+  if (muteBtn.classList.contains("muted")){
+    muteBtn.classList.remove("muted");
+    audioTrack.setVolume(0.5);
+    volumeSlider.value = 0.5;
+  } else {
+    audioTrack.setVolume(0);
+    muteBtn.classList.add("muted");
+    volumeSlider.value = 0;
+  }
+});
+
+/* Forward 5s */
+forwardBtn.addEventListener("click", () =>{
+  audioTrack.skip(5);
+});
+
+/* Backward 5s */
+backBtn.addEventListener("click", () =>{
+  audioTrack.skip(-5);
+});
+
+/* Recorder Setup */
+const display = document.querySelector('.display');
+const controllerWrapper = document.querySelector('.controllers');
+
+let mediaRecorder, chunks = [], recordings = [];
+
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    mediaRecorder = new MediaRecorder(stream);
+
+    mediaRecorder.ondataavailable = (e) => {
+      chunks.push(e.data);
     };
 
-    /* Mute Condition */
-    muteBtn.addEventListener("click", () => {
-    if (muteBtn.classList.contains("muted")){
-        muteBtn.classList.remove("muted");
-        audioTrack.setVolume(0.5);
-        volumeSlider.value = 0.5;
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(chunks, { 'type': 'audio/ogg; codecs=opus' });
+      chunks = [];
+      const audioURL = window.URL.createObjectURL(blob);
+      
+      // Save recording URL
+      recordings.push(audioURL);
+      
+      // Load the recorded audio into WaveSurfer for waveform display
+      audioTrack.loadBlob(blob); // This line ensures the waveform updates with the new recording
+      
+      // Update the list of recordings
+      updateRecordingsList();
+    };
+  }).catch(error => {
+    console.error('MediaDevices error:', error);
+  });
+}
+
+const record = () => {
+  mediaRecorder.start();
+  console.log('Recording started');
+};
+
+const stopRecording = () => {
+  mediaRecorder.stop();
+  console.log('Recording stopped');
+};
+
+// Function to update the recordings list UI
+function updateRecordingsList() {
+  const recordingsList = document.getElementById('recordingsList');
+  recordingsList.innerHTML = ''; // Clear existing list
+  recordings.forEach((url, index) => {
+    const listItem = document.createElement('li');
+    const link = document.createElement('a');
+    link.href = '#';
+    link.innerText = `Recording ${index + 1}`;
+    link.addEventListener('click', () => {
+      audioTrack.load(url); // Load and play selected recording
+    });
+    listItem.appendChild(link);
+    recordingsList.appendChild(listItem);
+  });
+}
+
+/* Initialize UI with Record Button */
+const initUI = () => {
+  const recordBtn = document.createElement('button');
+  recordBtn.textContent = 'Start Recording';
+  recordBtn.addEventListener('click', () => {
+    if (mediaRecorder.state === 'inactive') {
+      record();
+      recordBtn.textContent = 'Stop Recording';
     } else {
-        audioTrack.setVolume(0);
-        muteBtn.classList.add("muted");
-        volumeSlider.value = 0;
+      stopRecording();
+      recordBtn.textContent = 'Start Recording';
     }
-    });
+  });
+  controllerWrapper.appendChild(recordBtn);
+};
 
-    /* Forward 5s */
-    forwardBtn.addEventListener("click", () =>{
-    audioTrack.skip(5);
-    });
+initUI();
 
-    /* Backward 5s */
-    backBtn.addEventListener("click", () =>{
-    audioTrack.skip(-5);
-    });
     </script>
-
 </body>
 </html>
