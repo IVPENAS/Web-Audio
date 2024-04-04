@@ -5,8 +5,8 @@ import { FontAwesome5 } from '@expo/vector-icons';
 
 const PlaybackScreen = ({ route }) => {
   const [playbackObject, setPlaybackObject] = useState(null);
-  const [playbackStatus, setPlaybackStatus] = useState({}); //Play
-  const [isRepeatMode, setIsRepeatMode] = useState(false); // Repeat
+  const [playbackStatus, setPlaybackStatus] = useState({}); //Play Audio
+  const [isRepeatMode, setIsRepeatMode] = useState(false); // Playback 
   const { recording } = route.params;
 
   useEffect(() => {
@@ -22,20 +22,18 @@ const PlaybackScreen = ({ route }) => {
 
     initPlaybackObject();
 
-    // Cleanup function to unload playback object when component unmounts
     return () => {
       if (playbackObject) {
         playbackObject.unloadAsync();
       }
     };
-  }, [recording.uri]); // Reacting to changes in recording.uri
+  }, [recording.uri]);
 
   const updatePlaybackStatus = (status) => {
     if (status.didJustFinish && isRepeatMode) {
-      // Replay the audio once and then turn off repeat mode
       playbackObject.setPositionAsync(0).then(() => {
         playbackObject.playAsync();
-        setIsRepeatMode(false); // Ensure it only replays once
+        setIsRepeatMode(false); // Audio will repeat once
       });
     }
     setPlaybackStatus(status);
@@ -60,9 +58,9 @@ const PlaybackScreen = ({ route }) => {
         await playbackObject.setPositionAsync(Math.max(0, playbackStatus.positionMillis - 1000));
         break;
       case 'repeat':
-        await playbackObject.stopAsync(); // Ensure playback is stopped before resetting position
-        await playbackObject.setPositionAsync(0); // Reset to start
-        await playbackObject.playAsync(); // Start playing immediately
+        await playbackObject.stopAsync();
+        await playbackObject.setPositionAsync(0);
+        await playbackObject.playAsync();
         break;
     }
   };
@@ -73,7 +71,7 @@ const PlaybackScreen = ({ route }) => {
       
       <View style={styles.layout}>
         {/* Time Duration */}
-        {/* Line Animation Inprogrss */}
+        {/* Time Animation In-progress */}
       </View>
 
       {/* Repeat Toggle */}
@@ -124,54 +122,55 @@ const PlaybackScreen = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  header: {
-    fontSize: 24,
-    margin: 20,
-  },
-  controls: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingTop: 20,
-    width: '100%',
-    marginTop: 20,
-  },
-  layout:{
-    height: 200,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  /* Icons */
-  IconLayout:{
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  IconCircle: {
-    backgroundColor: '#0B3954', // Adjust color as needed
-    borderRadius: 25, // Half of width and height to create circle
-    width: 50, // Circle width
-    height: 50, // Circle height
-    alignItems: 'center',
-    justifyContent: 'center',
-    transform: [{translateY: -5}],
-  },
-  IconText:{
-    paddingTop: 5,
-    fontWeight: 'bold',
-    fontSize: 13,
-    color: '#0B3954',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+container: {
+flex: 1,
+alignItems: 'center',
+justifyContent: 'center',
+backgroundColor: '#F5FCFF',
+},
+header: {
+fontSize: 24,
+margin: 20,
+},
+/* Controls Layout */
+controls: {
+flexDirection: 'row',
+justifyContent: 'space-around',
+paddingTop: 20,
+width: '100%',
+marginTop: 20,
+},
+layout:{
+height: 200,
+alignItems: 'center',
+justifyContent: 'center'
+},
+/* Icon Layout */
+IconLayout:{
+alignItems: 'center',
+justifyContent: 'center',
+},
+IconCircle: {
+backgroundColor: '#0B3954',
+borderRadius: 25,
+width: 50,
+height: 50,
+alignItems: 'center',
+justifyContent: 'center',
+transform: [{translateY: -5}],
+},
+IconText:{
+paddingTop: 5,
+fontWeight: 'bold',
+fontSize: 13,
+color: '#0B3954',
+alignItems: 'center',
+justifyContent: 'center',
+},
+iconContainer: {
+alignItems: 'center',
+justifyContent: 'center',
+},
 });
 
 export default PlaybackScreen;

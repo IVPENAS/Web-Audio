@@ -7,12 +7,12 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function App() {
   const [recording, setRecording] = useState(null);
-  const [recordingStatus, setRecordingStatus] = useState('idle');
-  const [audioPermission, setAudioPermission] = useState(null); 
-  const [recordingsList, setRecordingsList] = useState([]);
+  const [recordingStatus, setRecordingStatus] = useState('idle'); //Recording Status
+  const [audioPermission, setAudioPermission] = useState(null);  //Recording Permision
+  const [recordingsList, setRecordingsList] = useState([]); //Recording List
 
   useEffect(() => {
-    //Permission 
+    //Recording Permision 
     async function getPermission() {
       await Audio.requestPermissionsAsync().then((permission) => {
         console.log('Permission Granted: ' + permission.granted);
@@ -33,13 +33,15 @@ export default function App() {
   //Start Recording
   async function startRecording() {
     try {
+
+      /* Permission */
       if (audioPermission) {
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: true,
           playsInSilentModeIOS: true
         })
       }
-
+      /* Creating new Audio Record */
       const newRecording = new Audio.Recording();
       console.log('Starting Recording')
 
@@ -60,12 +62,16 @@ export default function App() {
         console.log('Stopping Recording')
         await recording.stopAndUnloadAsync();
 
+        /* Fetching Recorded Audio */
         const recordingUri = recording.getURI();
+
+        /* Ordinal Numbering per Audio File */
         const ordinalNumber = recordingsList.length + 1;
         const fileName = `record audio - ${ordinalNumber}`;
 
         await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'recordings/', { intermediates: true });
         const filePath = FileSystem.documentDirectory + 'recordings/' + fileName;
+
         await FileSystem.moveAsync({
           from: recordingUri,
           to: filePath
@@ -101,11 +107,11 @@ export default function App() {
   return (
     <View style={styles.container}>
       <View style = {styles.playbackContainer}>
-        
+      {/* Duraiton number and animation should be placed here */}
       </View>
 
       <View style = {styles.footer}>
-
+  
       <Text style={styles.recordingStatusText}>{`Recording status: ${recordingStatus}`}</Text>
 
       {/* Record Button */}
@@ -129,51 +135,51 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-  flex: 1,
-  bottom: '0%',
-  },
-  /* Recording */
-  button: {
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: 65,
-  height: 65,
-  borderRadius: 64,
-  backgroundColor: "#0B3954",
-  },
-  recordingStatusText: {
-  marginBottom: 15,
-  },
-  /* Audio/Wave Layout */
-  playbackContainer : {
-  height: 30,
-  marginBottom: '128%',
-  alignItems: 'center',
-  justifyContent: 'center',
-  },
-  /* Recording Layout */
-  footer :{
-  backgroundColor: 'white',
-  height: 200,
-  alignItems: 'center',
-  justifyContent: 'center'
-  },
-  /* View All Layout */
-  viewAll: {
-  left: -120,
-  bottom: 55
-  },
-  IconText:{
-  paddingTop: 5,
-  fontWeight: 'bold',
-  fontSize: 13,
-  color: '#0B3954',
-  alignItems: 'center',
-  justifyContent: 'center',
-  },
-  iconContainer: {
-  alignItems: 'center',
-  justifyContent: 'center',
-  },
+container: {
+flex: 1,
+bottom: '0%',
+},
+/* Recording */
+button: {
+alignItems: 'center',
+justifyContent: 'center',
+width: 65,
+height: 65,
+borderRadius: 64,
+backgroundColor: "#0B3954",
+},
+recordingStatusText: {
+marginBottom: 15,
+},
+/* Audio/Wave Layout */
+playbackContainer : {
+height: 30,
+marginBottom: '128%',
+alignItems: 'center',
+justifyContent: 'center',
+},
+/* Recording Layout */
+footer :{
+backgroundColor: 'white',
+height: 200,
+alignItems: 'center',
+justifyContent: 'center'
+},
+/* View All Layout */
+viewAll: {
+left: -120,
+bottom: 55
+},
+IconText:{
+paddingTop: 5,
+fontWeight: 'bold',
+fontSize: 13,
+color: '#0B3954',
+alignItems: 'center',
+justifyContent: 'center',
+},
+iconContainer: {
+alignItems: 'center',
+justifyContent: 'center',
+},
 });

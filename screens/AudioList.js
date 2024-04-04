@@ -1,19 +1,12 @@
-// AudioList.js
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const AudioList = ({ route }) => {
+
+  /* Fetching the audio data from the RecordScreen */
   const navigation = useNavigation();
   const { recordingsList } = route.params;
-
-  
-  const deleteRecording = (DeleteList) => {
-    // This is a hypothetical function. In practice, update the state in the parent component.
-    const updatedRecordingsList = recordingsList.filter((_, index) => index !== DeleteList);
-    // Update the state in the parent component instead
-    console.log(updatedRecordingsList); // For demonstration
-  };
 
   return (
     <View style={styles.container}>
@@ -45,37 +38,39 @@ const AudioList = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  header: {
-    fontSize: 24,
-    margin: 20,
-  },
-  recordingsList: {
-    width: '100%',
-  },
-  recordingItem: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  recordingText: {
-    fontSize: 16,
-    color: 'black',
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: '50%',
-  },
-  emptyText: {
-    fontSize: 16,
-    color: 'grey',
-  },
+container: {
+flex: 1,
+alignItems: 'center',
+justifyContent: 'center',
+backgroundColor: '#F5FCFF',
+},
+/* Title */
+header: {
+fontSize: 24,
+margin: 20,
+},
+/* Recording List Layout */
+recordingsList: {
+width: '100%',
+},
+recordingItem: {
+padding: 16,
+borderBottomWidth: 1,
+borderBottomColor: '#ccc',
+},
+recordingText: {
+fontSize: 16,
+color: 'black',
+},
+emptyContainer: {
+alignItems: 'center',
+justifyContent: 'center',
+marginTop: '50%',
+},
+emptyText: {
+fontSize: 16,
+color: 'grey',
+},
 });
 
 export default AudioList;
