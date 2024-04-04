@@ -1,151 +1,177 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, Pressable, TouchableOpacity, FlatList} from 'react-native';
-import { FontAwesome5 } from '@expo/vector-icons';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Audio } from 'expo-av';
+import { FontAwesome5 } from '@expo/vector-icons';
 
-function AudioFilesScreen({ route }) {
-  const [recordings, setRecordings] = useState(route.params.recordings);
+const PlaybackScreen = ({ route }) => {
+  const [playbackObject, setPlaybackObject] = useState(null);
+  const [playbackStatus, setPlaybackStatus] = useState({}); //Play
+  const [isRepeatMode, setIsRepeatMode] = useState(false); // Repeat
+  const { recording } = route.params;
 
-  /* Plays the sound */
-  const playSound = async (sound) => {
-    await sound.replayAsync();
+  useEffect(() => {
+    // Initialize playback object
+    const initPlaybackObject = async () => {
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: recording.uri },
+        { shouldPlay: true },
+        updatePlaybackStatus
+      );
+      setPlaybackObject(sound);
+    };
+
+    initPlaybackObject();
+
+    // Cleanup function to unload playback object when component unmounts
+    return () => {
+      if (playbackObject) {
+        playbackObject.unloadAsync();
+      }
+    };
+  }, [recording.uri]); // Reacting to changes in recording.uri
+
+  const updatePlaybackStatus = (status) => {
+    if (status.didJustFinish && isRepeatMode) {
+      // Replay the audio once and then turn off repeat mode
+      playbackObject.setPositionAsync(0).then(() => {
+        playbackObject.playAsync();
+        setIsRepeatMode(false); // Ensure it only replays once
+      });
+    }
+    setPlaybackStatus(status);
   };
 
-  const clearRecordings = () => {
-    setRecordings([]); // Set recordings to an empty array
+  /* Media Control */
+  const controlPlayback = async (action) => {
+    if (!playbackObject) return;
+
+    switch (action) {
+      case 'play':
+        if (playbackStatus.isPlaying) {
+          await playbackObject.pauseAsync();
+        } else {
+          await playbackObject.playAsync();
+        }
+        break;
+      case 'forward':
+        await playbackObject.setPositionAsync(playbackStatus.positionMillis + 1000);
+        break;
+      case 'backward':
+        await playbackObject.setPositionAsync(Math.max(0, playbackStatus.positionMillis - 1000));
+        break;
+      case 'repeat':
+        await playbackObject.stopAsync(); // Ensure playback is stopped before resetting position
+        await playbackObject.setPositionAsync(0); // Reset to start
+        await playbackObject.playAsync(); // Start playing immediately
+        break;
+    }
   };
 
   return (
-    <View>
-
-      <View>
-        <Text style={styles.AllRecordings}> All Recordings </Text>
+    <View style={styles.container}>
+      <Text style={styles.header}>{recording.name}</Text>
+      
+      <View style={styles.layout}>
+        {/* Time Duration */}
+        {/* Line Animation Inprogrss */}
       </View>
 
-      {/* Clear */}
-      <TouchableOpacity title='Clear' style={[styles.centeredContent]} onPress={clearRecordings}>
-      <View style={styles.iconContainer}>
-        <FontAwesome5 name="trash" size={20} color="#0B3954" style={styles.triangle}/>
-        <Text style = {styles.IconText}>Clear All</Text>
-      </View>
-      </TouchableOpacity>
-
-      
-      
-      {/* If Recordings is 0 display message */}
-      {recordings.length === 0 ? (
-        <Text style={styles.emptyMessage}>Empty Playback List, Please Record an Audio</Text>
-      ) : (
-        recordings.map((recording, index) => (
-        <View key={index} style={styles.row}>
-        
-        {/* Display Recorded List */}
-        
-        <TouchableOpacity style={styles.recordButton} onPress={() => playSound(recording.sound)}>
-          <FontAwesome5 name="play" size={15} color="white" style={styles.triangle}/>
+      {/* Repeat Toggle */}
+      <TouchableOpacity onPress={() => controlPlayback('repeat')}>
+          <View style={styles.iconContainer}>
+            <FontAwesome5 name="sync-alt" size={25} color="#0B3954"/>
+            <Text style = {styles.IconText}>
+            Repeat
+          </Text>
+          </View>
         </TouchableOpacity>
-          <Text>Recording {index + 1}</Text>
+
+      <View style={styles.controls}>
+        {/* Forward +5s */}
+        <TouchableOpacity onPress={() => controlPlayback('forward')} >
+        <View style={styles.iconContainer}>
+          <FontAwesome5 name="redo-alt" size={25} color="#0B3954"/>
+          <Text style = {styles.IconText}>
+            +1s
+          </Text>
         </View>
-        ))
-      )}
+        </TouchableOpacity>
+
+        {/* Play & Pause */}
+        <TouchableOpacity onPress={() => controlPlayback('play')}>
+          <View style={[styles.IconCircle, styles.iconContainer]}>
+            <FontAwesome5
+              name={playbackStatus.isPlaying ? "pause" : "play"}
+              size={20}
+              color="#fff"
+            />
+          </View>
+        </TouchableOpacity>
+
+        {/* Backward -5s */}
+        <TouchableOpacity onPress={() => controlPlayback('backward')} >
+        <View style={styles.iconContainer}>
+          <FontAwesome5 name="undo-alt" size={25} color="#0B3954"/>
+          <Text style = {styles.IconText}>
+            -1s
+          </Text>
+        </View>
+        </TouchableOpacity>
+
+      </View>
     </View>
   );
-}
-/* <FlatList
-      data={recordings}
-      keyExtractor={(item, index) => index.toString()}
-      renderItem={({ item, index }) => (
-        // ... your renderItem content
-      )}
-    />
-  )} */
-
-export default AudioFilesScreen;
+};
 
 const styles = StyleSheet.create({
-playbackContainer : {
-flex: 1,
-height: 30,
-justifyContent: 'center'
-},
-playbackBackground : {
-height: 3,
-width: 310,
-left: 40,
-backgroundColor: 'gainsboro',
-borderRadius: 5,
-},
-/* Row Layout */
-row: {
-flexDirection: 'row',
-alignItems: 'center',
-justifyContent: 'center',
-top: 100,
-margin: 5,
-padding: 15,
-marginLeft: 10,
-marginRight: 10,
-bottom: '0.2',
-backgroundColor: 'white',
-alignItems: 'center',
-borderRadius: 5,
-shadowColor: "#000",
-shadowOffset: {
-width: 0,
-height: 2,
-},
-shadowOpacity: 0.25,
-shadowRadius: 3.84,
-elevation: 5,
-gap: 10
-},
-/* All Recording Text */
-AllRecordings: {
-left: 10,
-top: 25,
-paddingTop: 5,
-fontWeight: 'bold',
-fontSize: 15,
-color: '#0B3954'
-},
-/* Play Button */
-recordButton : {
-width: 50,
-height: 50,
-right: 100,
-borderRadius: 60,
-borderWidth: 2,
-borderColor: '#0B3954',
-padding: 3,
-alignItems: 'center',
-justifyContent: 'center',
-backgroundColor: '#0B3954',
-},
-/* Empty Message when the recording is empty */
-emptyMessage: {
-fontSize: 16,
-color: 'grey',
-textAlign: 'center',
-marginTop: 250,
-},
-/* Triangle in the Play */
-triangle:{
-left: 2
-},
-/* Clear Button */
-iconContainer: {
-top: 50,
-left: 150,
-alignItems: 'center',
-justifyContent: 'center',
-},
-centeredContent: {
-alignItems: 'center',
-},
-IconText:{
-paddingTop: 5,
-fontWeight: 'bold',
-fontSize: 13,
-color: '#0B3954'
-},
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F5FCFF',
+  },
+  header: {
+    fontSize: 24,
+    margin: 20,
+  },
+  controls: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingTop: 20,
+    width: '100%',
+    marginTop: 20,
+  },
+  layout:{
+    height: 200,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  /* Icons */
+  IconLayout:{
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  IconCircle: {
+    backgroundColor: '#0B3954', // Adjust color as needed
+    borderRadius: 25, // Half of width and height to create circle
+    width: 50, // Circle width
+    height: 50, // Circle height
+    alignItems: 'center',
+    justifyContent: 'center',
+    transform: [{translateY: -5}],
+  },
+  IconText:{
+    paddingTop: 5,
+    fontWeight: 'bold',
+    fontSize: 13,
+    color: '#0B3954',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
+
+export default PlaybackScreen;

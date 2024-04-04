@@ -62,14 +62,14 @@ import { WebView } from 'react-native-webview';
 
       {/* Webview */}
           
-            <WebView
+           {/*  <WebView
             style={styles.webView}
             source={require('../assets/index.html')}
             mediaPlaybackRequiresUserAction={false} // Important for auto-playing media
             allowsInlineMediaPlayback={true} // Allow playing media inline
             javaScriptEnabled={true} // Enable JavaScript execution
             domStorageEnabled={true} // Enable DOM storage (might be necessary for some web apps)
-        />
+        /> */}
         
 <View style={styles.contentContainer}>
       {/* Dimming Animation */}
