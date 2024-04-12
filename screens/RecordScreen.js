@@ -122,9 +122,10 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      
       <View style = {styles.playbackContainer}>
       {/* Duraiton number and animation should be placed here */}
-      <Text style={styles.timerText}>Recording Time: {elapsedTime} sec</Text>
+      <Text style={styles.timerText}>{elapsedTime}</Text>
       </View>
 
       <View style = {styles.footer}>
@@ -154,7 +155,6 @@ export default function App() {
 const styles = StyleSheet.create({
 container: {
 flex: 1,
-bottom: '0%',
 },
 /* Recording */
 button: {
@@ -170,8 +170,7 @@ marginBottom: 15,
 },
 /* Audio/Wave Layout */
 playbackContainer : {
-height: 30,
-marginBottom: '128%',
+marginBottom: 'auto',
 alignItems: 'center',
 justifyContent: 'center',
 },
@@ -199,4 +198,9 @@ iconContainer: {
 alignItems: 'center',
 justifyContent: 'center',
 },
+/* Timer Text */
+timerText: {
+  fontSize: 50,
+  transform: [{translateY: 250}],
+}
 });
