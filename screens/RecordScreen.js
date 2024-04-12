@@ -10,6 +10,7 @@ export default function App() {
   const [recordingStatus, setRecordingStatus] = useState('idle'); //Recording Status
   const [audioPermission, setAudioPermission] = useState(null);  //Recording Permision
   const [recordingsList, setRecordingsList] = useState([]); //Recording List
+  const [elapsedTime, setElapsedTime] = useState(0); // Added for timer 
 
   useEffect(() => {
     //Recording Permision 
@@ -30,6 +31,23 @@ export default function App() {
     };
   }, []);
 
+  //Reset when 30 seconds was lasped
+  useEffect(() => {
+    let timer;
+    if (recordingStatus === 'recording') {
+      timer = setInterval(() => {
+        setElapsedTime(prevTime => {
+          if (prevTime >= 29) { // Use 29 to account for any delay that might stop it at 29
+            stopRecording();
+          }
+          return prevTime + 1;
+        });
+      }, 1000);
+    }
+
+    return () => clearInterval(timer);
+  }, [recordingStatus]);
+
   //Start Recording
   async function startRecording() {
     try {
@@ -49,7 +67,7 @@ export default function App() {
       await newRecording.startAsync();
       setRecording(newRecording);
       setRecordingStatus('recording');
-
+      setElapsedTime(0); // Reset timer
     } catch (error) {
       console.error('Failed to start recording', error);
     }
@@ -62,11 +80,8 @@ export default function App() {
         console.log('Stopping Recording')
         await recording.stopAndUnloadAsync();
 
-        /* Fetching Recorded Audio */
-        const recordingUri = recording.getURI();
-
-        /* Ordinal Numbering per Audio File */
-        const ordinalNumber = recordingsList.length + 1;
+        const recordingUri = recording.getURI(); //Fetching Recorded Audio
+        const ordinalNumber = recordingsList.length + 1; //Ordinal Numbering per Audio File
         const fileName = `record audio - ${ordinalNumber}`;
 
         await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'recordings/', { intermediates: true });
@@ -83,7 +98,8 @@ export default function App() {
         }]);
 
         setRecording(null);
-        setRecordingStatus('stopped');
+        setRecordingStatus('idle'); // Set status back to idle
+        setElapsedTime(0); // Reset timer
       }
     } catch (error) {
       console.error('Failed to stop recording', error);
@@ -108,6 +124,7 @@ export default function App() {
     <View style={styles.container}>
       <View style = {styles.playbackContainer}>
       {/* Duraiton number and animation should be placed here */}
+      <Text style={styles.timerText}>Recording Time: {elapsedTime} sec</Text>
       </View>
 
       <View style = {styles.footer}>
