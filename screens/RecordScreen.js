@@ -4,6 +4,7 @@ import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { Circle, Svg } from 'react-native-svg';
 
 export default function App() {
   const [recording, setRecording] = useState(null);
@@ -122,9 +123,12 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      
+
+      <Svg height="100%" width="100%" viewBox="0 0 100 100" style={styles.svgContainer}>
+        <Circle cx="50" cy="20" r="30" fill="none" stroke="blue" strokeWidth="8"/>
+      </Svg>
+
       <View style = {styles.playbackContainer}>
-      {/* Duraiton number and animation should be placed here */}
       <Text style={styles.timerText}>{elapsedTime}</Text>
       </View>
 
@@ -201,6 +205,15 @@ justifyContent: 'center',
 /* Timer Text */
 timerText: {
   fontSize: 50,
-  transform: [{translateY: 250}],
-}
+  transform: [{translateY: 215}],
+},
+svgContainer: {
+  position: 'absolute', // Make SVG position absolute to float over other components
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  alignItems: 'center',
+  justifyContent: 'center',
+},
 });
