@@ -46,10 +46,9 @@ export default function App() {
         });
       }, 1000);
     } else {
-      // Smooth reset of the animation when not recording
       Animated.timing(animatedValue, {
         toValue: 0,
-        duration: 500,  // Smooth transition duration
+        duration: 500,  // reset transition
         useNativeDriver: true
       }).start();
     }
@@ -58,7 +57,6 @@ export default function App() {
 
   //Animation of Circle
   useEffect(() => {
-    // Calculate the circumference of the circle
     const circumference = 30 * 2 * Math.PI;
 
     // Animate the strokeDashoffset from 0 to circumference
@@ -72,7 +70,6 @@ export default function App() {
   //Start Recording
   async function startRecording() {
     try {
-
       /* Permission */
       if (audioPermission) {
         await Audio.setAudioModeAsync({
@@ -183,7 +180,6 @@ export default function App() {
       </View>
 
       <View style = {styles.footer}>
-  
       <Text style={styles.recordingStatusText}>{`Recording status: ${recordingStatus}`}</Text>
 
       {/* Record Button */}
