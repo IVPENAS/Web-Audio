@@ -38,18 +38,17 @@ export default function App() {
     if (recordingStatus === 'recording') {
       timer = setInterval(() => {
         setElapsedTime(prevTime => {
-          if (prevTime >= 30) {
+          if (prevTime >= 29) { // Use 29 to account for any delay that might stop it at 29
             stopRecording();
-            return 0;  // Reset time to 0
           }
           return prevTime + 1;
         });
       }, 1000);
-    } else {
-      // Smooth reset of the animation when not recording
+    }else {
+      // Reset the animation when not recording
       Animated.timing(animatedValue, {
         toValue: 0,
-        duration: 500,  // Smooth transition duration
+        duration: 0,
         useNativeDriver: true
       }).start();
     }
@@ -143,38 +142,19 @@ export default function App() {
   return (
     <View style={styles.container}>
 
-      {/*Circle */}
+      {/* <Svg height="100%" width="100%" viewBox="0 0 100 100" style={styles.svgContainer}>
+        <Circle cx="50" cy="20" r="30" fill="none" stroke="blue" strokeWidth="8"/>
+      </Svg> */}
       <Svg height="100%" width="100%" viewBox="0 0 100 100" style={styles.svgContainer}>
-        <Circle 
-        cx="50" 
-        cy="20" 
-        r="30" 
-        fill="none" 
-        stroke="#0B3954" 
-        strokeWidth="8"/>
-      </Svg>
-      <Svg height="100%" width="100%" viewBox="0 0 100 100" style={styles.svgContainer}>
-        <Circle 
-        cx="50" 
-        cy="20" 
-        r="30" 
-        fill="none" 
-        stroke="#FF9700" 
-        strokeWidth="3"/>
-      </Svg>
-
-      {/* Animated Circle */}
-      <Svg height="100%" width="100%" viewBox="0 0 100 100" style={styles.svgContainer} >
         <AnimatedCircle
-          cx="20"
+          cx="50"
           cy="50"
           r="30"
           fill="none"
-          stroke="white"
-          strokeWidth="3"
+          stroke="blue"
+          strokeWidth="8"
           strokeDasharray={`${30 * 2 * Math.PI}`}
           strokeDashoffset={animatedValue}
-          transform="rotate(-270, 50, 50)"
         />
       </Svg>
 
@@ -205,8 +185,8 @@ export default function App() {
     </View>
   );
 }
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const styles = StyleSheet.create({
 container: {
 flex: 1,
