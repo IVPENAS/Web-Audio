@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { Audio } from 'expo-av';
 import { FontAwesome5 } from '@expo/vector-icons';
+import { Circle, Svg } from 'react-native-svg';
 
 const PlaybackScreen = ({ route }) => {
   const [playbackObject, setPlaybackObject] = useState(null);
   const [playbackStatus, setPlaybackStatus] = useState({}); //Play Audio
-  const [isRepeatMode, setIsRepeatMode] = useState(false); // Playback 
+  const [isRepeatMode, setIsRepeatMode] = useState(false); // Playback
+  const [elapsedTime, setElapsedTime] = useState(0); // Timer state
   const { recording } = route.params;
+  const animatedValue = useRef(new Animated.Value(0)).current; // Animated value for circle animation
 
   useEffect(() => {
     // Initialize playback object
@@ -19,15 +22,66 @@ const PlaybackScreen = ({ route }) => {
       );
       setPlaybackObject(sound);
     };
-
     initPlaybackObject();
-
-    return () => {
+  }, [recording.uri]);
+   
+/*     return () => {
       if (playbackObject) {
         playbackObject.unloadAsync();
       }
     };
-  }, [recording.uri]);
+  }, [recording.uri]); */
+
+  /* Timer */
+  useEffect(() => {
+    let timer;
+    if (playbackStatus.isPlaying) {
+      timer = setInterval(() => {
+        setElapsedTime((prevTime) => prevTime + 1);
+      }, 1000);
+    } else {
+      clearInterval(timer);
+      setElapsedTime(0); // Reset timer when playback stops
+    }
+    return () => clearInterval(timer);
+  }, [playbackStatus.isPlaying]);
+  
+  /* Forward/Backward Timer Setting */
+  useEffect(() => {
+    if (playbackStatus.positionMillis !== undefined) {
+      const newElapsedTime = Math.floor(playbackStatus.positionMillis / 1000);
+      setElapsedTime(newElapsedTime);
+    }
+  }, [playbackStatus.positionMillis]);
+
+  /* Animation Circle */
+  useEffect(() => {
+    if (playbackStatus.positionMillis !== undefined) {
+      const elapsedTimeInSeconds = playbackStatus.positionMillis / 1000;
+      const animationProgress = (elapsedTimeInSeconds % 30) / 30;
+      const circumference = 30 * 2 * Math.PI;
+
+      Animated.timing(animatedValue, {
+        toValue: circumference * animationProgress,
+        duration: 500,
+        useNativeDriver: true
+      }).start();
+    }
+  }, [playbackStatus.positionMillis]);
+
+  useEffect(() => {
+    if (playbackStatus.didJustFinish) {
+      // Reset both the animation and the timer when the audio finishes
+      Animated.timing(animatedValue, {
+        toValue: 0,
+        duration: 1000,
+        useNativeDriver: true
+      }).start(() => {
+        // Ensure the timer is reset after the animation has completed
+        setElapsedTime(0);
+      });
+    }
+  }, [playbackStatus.didJustFinish]);
 
   const updatePlaybackStatus = (status) => {
     if (status.didJustFinish && isRepeatMode) {
@@ -64,16 +118,55 @@ const PlaybackScreen = ({ route }) => {
         break;
     }
   };
-
+/* back */
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>{recording.name}</Text>
+      {/*Circle 1*/}
+      <Svg height="100%" width="100%" viewBox="0 0 100 100" style={styles.svgContainer}>
+        <Circle 
+        cx="50" 
+        cy="20" 
+        r="30" 
+        fill="none" 
+        stroke="#0B3954" 
+        strokeWidth="8"
+      />
+      </Svg>
+
+      {/*Circle 2*/}
+      <Svg height="100%" width="100%" viewBox="0 0 100 100" style={styles.svgContainer}>
+        <Circle 
+        cx="50" 
+        cy="20" 
+        r="30" 
+        fill="none" 
+        stroke="#E7E7E7" 
+        strokeWidth="3"
+      />
+      </Svg>
+
+      {/* Animated Circle */}
+      <Svg height="100%" width="100%" viewBox="0 0 100 100" style={styles.svgContainer}>
+        <AnimatedCircle 
+        cx="50" 
+        cy="20" 
+        r="30" 
+        fill="none" 
+        stroke="#FF9700" 
+        strokeWidth="3"
+        strokeLinecap='round'
+        strokeDasharray={`${30 * 2 * Math.PI}`}
+        strokeDashoffset={animatedValue}
+      />
+      </Svg>
+      
       
       <View style={styles.layout}>
-        {/* Time Duration */}
-        {/* Time Animation In-progress */}
+        <Text style={styles.timerText}>{elapsedTime}</Text>
+        <Text style={styles.header}>{recording.name}</Text>
       </View>
 
+      <View style={styles.controls}>
       {/* Repeat Toggle */}
       <TouchableOpacity onPress={() => controlPlayback('repeat')}>
           <View style={styles.iconContainer}>
@@ -83,6 +176,7 @@ const PlaybackScreen = ({ route }) => {
           </Text>
           </View>
         </TouchableOpacity>
+      </View>  
 
       <View style={styles.controls}>
         {/* Forward +5s */}
@@ -120,6 +214,7 @@ const PlaybackScreen = ({ route }) => {
     </View>
   );
 };
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const styles = StyleSheet.create({
 container: {
@@ -130,7 +225,7 @@ backgroundColor: '#F5FCFF',
 },
 header: {
 fontSize: 24,
-margin: 20,
+transform: [{translateY: -275}],
 },
 /* Controls Layout */
 controls: {
@@ -168,6 +263,20 @@ alignItems: 'center',
 justifyContent: 'center',
 },
 iconContainer: {
+alignItems: 'center',
+justifyContent: 'center',
+},
+/* Timer Text */
+timerText: {
+fontSize: 50,
+transform: [{translateY: -15}],
+},
+svgContainer: {
+position: 'absolute', // Make SVG position absolute to float over other components
+top: 0,
+left: 0,
+right: 0,
+bottom: 0,
 alignItems: 'center',
 justifyContent: 'center',
 },

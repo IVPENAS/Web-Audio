@@ -204,7 +204,7 @@ export default function App() {
         strokeWidth="3"
         opacity={animatedOpacityCircle2}
       />
-    </Svg>
+      </Svg>
 
     {/* Animated Circle */}
     <Svg height="100%" width="100%" viewBox="0 0 100 100" style={styles.svgContainer} >
