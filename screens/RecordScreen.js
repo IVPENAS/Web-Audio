@@ -13,7 +13,11 @@ export default function App() {
   const [recordingsList, setRecordingsList] = useState([]); //Recording List
   const [elapsedTime, setElapsedTime] = useState(0); // Added for timer 
   const animatedValue = useRef(new Animated.Value(0)).current; // Reference to animated value
+  const animatedOpacityCircle2 = useRef(new Animated.Value(0)).current; //Opacity Animation - Circle 2
+  const animatedOpacityAnimatedCircle = useRef(new Animated.Value(0)).current; //Opacity Animation - Animated Circle
 
+
+  //Permission
   useEffect(() => {
     //Recording Permision 
     async function getPermission() {
@@ -32,40 +36,79 @@ export default function App() {
     };
   }, []);
 
-  //Reset when 30 seconds was lasped
-  useEffect(() => {
-    let timer;
-    if (recordingStatus === 'recording') {
-      timer = setInterval(() => {
-        setElapsedTime(prevTime => {
-          if (prevTime >= 30) {
-            stopRecording();
-            return 0;  // Reset time to 0
-          }
-          return prevTime + 1;
-        });
-      }, 1000);
-    } else {
-      Animated.timing(animatedValue, {
-        toValue: 0,
-        duration: 500,  // reset transition
-        useNativeDriver: true
-      }).start();
-    }
-    return () => clearInterval(timer);
-  }, [recordingStatus]);
-
   //Animation of Circle
   useEffect(() => {
     const circumference = 30 * 2 * Math.PI;
 
-    // Animate the strokeDashoffset from 0 to circumference
-    Animated.timing(animatedValue, {
-      toValue: circumference * (elapsedTime / 30),
-      duration: 1000,
-      useNativeDriver: true
-    }).start();
-  }, [elapsedTime]);
+    if (recordingStatus === 'recording') {
+      Animated.timing(animatedValue, {
+        toValue: circumference,
+        duration: 30995, //30 seconds - added slight delay for the animation
+        useNativeDriver: true
+      }).start();
+    } else {
+      //Reset Animation - Stopping Recording
+      Animated.timing(animatedValue, {
+        toValue: 0,
+        duration: 1000, // Smooth transition to reset
+        useNativeDriver: true
+      }).start();
+    }
+  }, [recordingStatus]);
+
+    //Reset Animation - 30 secs
+    useEffect(() => {
+      let timer;
+      if (recordingStatus === 'recording') {
+        timer = setInterval(() => {
+          setElapsedTime((prevTime) => {
+            const newTime = prevTime + 1;
+            if (newTime < 30) {
+              return newTime;
+            } else {
+              clearInterval(timer);
+              stopRecording(); // Stop recording at 30 seconds
+              return 30;
+            }
+          });
+        }, 1000); // Increment the timer every second
+      }
+      return () => clearInterval(timer); // Clean up the timer when the component unmounts
+    }, [recordingStatus]);
+
+    /* Opacity Recording - Idle */
+    useEffect(() => {
+      if (recordingStatus === 'idle' && elapsedTime === 0) {
+        // Ending - End of Recording
+        Animated.parallel([
+          Animated.timing(animatedOpacityCircle2, {
+            toValue: 0,
+            duration: 3500,
+            useNativeDriver: true,
+          }),
+          Animated.timing(animatedOpacityAnimatedCircle, {
+            toValue: 0,
+            duration: 3500,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      } else if (recordingStatus === 'recording') {
+        // Opening - Start of Recording
+        Animated.parallel([
+          Animated.timing(animatedOpacityCircle2, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(animatedOpacityAnimatedCircle, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }
+    }, [recordingStatus, elapsedTime]);
+
 
   //Start Recording
   async function startRecording() {
@@ -122,7 +165,6 @@ export default function App() {
       console.error('Failed to stop recording', error);
     }
   }
-
   async function handleRecordButtonPress() {
     if (recording) {
       await stopRecording();
@@ -140,7 +182,7 @@ export default function App() {
   return (
     <View style={styles.container}>
 
-      {/*Circle */}
+      {/*Circle 1*/}
       <Svg height="100%" width="100%" viewBox="0 0 100 100" style={styles.svgContainer}>
         <Circle 
         cx="50" 
@@ -150,30 +192,36 @@ export default function App() {
         stroke="#0B3954" 
         strokeWidth="8"/>
       </Svg>
-      <Svg height="100%" width="100%" viewBox="0 0 100 100" style={styles.svgContainer}>
-        <Circle 
-        cx="50" 
-        cy="20" 
-        r="30" 
-        fill="none" 
-        stroke="#FF9700" 
-        strokeWidth="3"/>
-      </Svg>
 
-      {/* Animated Circle */}
-      <Svg height="100%" width="100%" viewBox="0 0 100 100" style={styles.svgContainer} >
-        <AnimatedCircle
-          cx="20"
-          cy="50"
-          r="30"
-          fill="none"
-          stroke="white"
-          strokeWidth="3"
-          strokeDasharray={`${30 * 2 * Math.PI}`}
-          strokeDashoffset={animatedValue}
-          transform="rotate(-270, 50, 50)"
-        />
-      </Svg>
+      {/* Circle 2 */}
+      <Svg height="100%" width="100%" viewBox="0 0 100 100" style={styles.svgContainer}>
+      <AnimatedCircle
+        cx="50"
+        cy="20"
+        r="30"
+        fill="none"
+        stroke="#E7E7E7"
+        strokeWidth="3"
+        opacity={animatedOpacityCircle2} // Apply animated opacity here
+      />
+    </Svg>
+
+    {/* Animated Circle */}
+    <Svg height="100%" width="100%" viewBox="0 0 100 100" style={styles.svgContainer} >
+      <AnimatedCircle
+        cx="20"
+        cy="50"
+        r="30"
+        fill="none"
+        stroke="#FF9700"
+        strokeWidth="3"
+        strokeDasharray={`${30 * 2 * Math.PI}`}
+        strokeDashoffset={animatedValue}
+        strokeLinecap='round'
+        transform="rotate(-270, 50, 50)"
+        opacity={animatedOpacityAnimatedCircle} // Apply animated opacity here
+      />
+    </Svg>
 
       <View style = {styles.playbackContainer}>
       <Text style={styles.timerText}>{elapsedTime}</Text>
@@ -201,7 +249,7 @@ export default function App() {
     </View>
   );
 }
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+const AnimatedCircle = Animated.createAnimatedComponent(Circle); //Circle Animation
 
 const styles = StyleSheet.create({
 container: {
