@@ -50,7 +50,7 @@ export default function App() {
       //Reset Animation - Stopping Recording
       Animated.timing(animatedValue, {
         toValue: 0,
-        duration: 1000, // Smooth transition to reset
+        duration: 1000,
         useNativeDriver: true
       }).start();
     }
@@ -67,13 +67,13 @@ export default function App() {
               return newTime;
             } else {
               clearInterval(timer);
-              stopRecording(); // Stop recording at 30 seconds
+              stopRecording();
               return 30;
             }
           });
-        }, 1000); // Increment the timer every second
+        }, 1000);
       }
-      return () => clearInterval(timer); // Clean up the timer when the component unmounts
+      return () => clearInterval(timer);
     }, [recordingStatus]);
 
     /* Opacity Recording - Idle */
@@ -83,12 +83,12 @@ export default function App() {
         Animated.parallel([
           Animated.timing(animatedOpacityCircle2, {
             toValue: 0,
-            duration: 3500,
+            duration: 2500,
             useNativeDriver: true,
           }),
           Animated.timing(animatedOpacityAnimatedCircle, {
             toValue: 0,
-            duration: 3500,
+            duration: 2500,
             useNativeDriver: true,
           }),
         ]).start();
@@ -202,7 +202,7 @@ export default function App() {
         fill="none"
         stroke="#E7E7E7"
         strokeWidth="3"
-        opacity={animatedOpacityCircle2} // Apply animated opacity here
+        opacity={animatedOpacityCircle2}
       />
     </Svg>
 
@@ -219,7 +219,7 @@ export default function App() {
         strokeDashoffset={animatedValue}
         strokeLinecap='round'
         transform="rotate(-270, 50, 50)"
-        opacity={animatedOpacityAnimatedCircle} // Apply animated opacity here
+        opacity={animatedOpacityAnimatedCircle}
       />
     </Svg>
 
